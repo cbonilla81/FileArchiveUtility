@@ -300,10 +300,10 @@ function Test-IsExcludedPath {
 function Test-IsDestinationInsideSource {
     param([string]$Source, [string]$Destination)
     try {
-        $normalizedSource = [System.IO.Path]::GetFullPath($Source.TrimEnd("\"))
-        $normalizedDestination = [System.IO.Path]::GetFullPath($Destination.TrimEnd("\"))
+        $normalizedSource = [System.IO.Path]::GetFullPath($Source.TrimEnd([char]92))
+        $normalizedDestination = [System.IO.Path]::GetFullPath($Destination.TrimEnd([char]92))
         return $normalizedDestination.StartsWith(
-            $normalizedSource + "\",
+            $normalizedSource + [System.IO.Path]::DirectorySeparatorChar,
             [System.StringComparison]::OrdinalIgnoreCase
         )
     }
@@ -368,7 +368,7 @@ function Start-ArchiveOperation {
         [System.Windows.Forms.MessageBox]::Show("The source path could not be found or accessed.`n`n$sourcePath", "Invalid Source Path", "OK", "Error")
         return
     }
-    if ($sourcePath.TrimEnd("\") -eq $archivePath.TrimEnd("\")) {
+    if ($sourcePath.TrimEnd([char]92) -eq $archivePath.TrimEnd([char]92)) {
         [System.Windows.Forms.MessageBox]::Show("The source and archive paths cannot be the same.", "Invalid Configuration", "OK", "Error")
         return
     }
@@ -404,7 +404,7 @@ function Start-ArchiveOperation {
         New-Item -Path $script:TextLogPath -ItemType File -Force | Out-Null
 
         $cutoffDate = (Get-Date).AddDays(-$ageInDays)
-        $normalizedSource = $sourcePath.TrimEnd("\")
+        $normalizedSource = $sourcePath.TrimEnd([char]92)
 
         Write-GuiLog "Archive operation started."
         Write-GuiLog "Source: $sourcePath"
@@ -455,7 +455,7 @@ function Start-ArchiveOperation {
             $progressBar.Value = [math]::Min([math]::Floor(($processedFiles / $totalFiles) * 100), 100)
 
             try {
-                $relativePath = $file.FullName.Substring($normalizedSource.Length).TrimStart("\")
+                $relativePath = $file.FullName.Substring($normalizedSource.Length).TrimStart([char]92)
                 $destinationFile = Join-Path $archivePath $relativePath
                 $destinationDirectory = Split-Path -Path $destinationFile -Parent
 
@@ -506,7 +506,7 @@ function Start-ArchiveOperation {
                         $_.LastWriteTime -lt $cutoffDate -and
                         -not (Test-IsExcludedPath -FullPath $_.FullName)
                     } |
-                    Sort-Object { $_.FullName.Split("\").Count } -Descending
+                    Sort-Object { $_.FullName.Split([char]92).Count } -Descending
             )
 
             foreach ($directory in $directories) {
