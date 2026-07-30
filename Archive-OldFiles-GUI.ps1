@@ -1,3 +1,23 @@
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+Write-Host "══════════════════════════════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "        ⚔                         ☠                         ⚔" -ForegroundColor White
+Write-Host ""
+Write-Host "          ██╗ ██████╗ ██╗     ██╗     ██╗   ██╗    ██████╗" -ForegroundColor Red
+Write-Host "          ██║██╔═══██╗██║     ██║      ╚██╗ ██╔╝   ██╔══██╗" -ForegroundColor Red
+Write-Host "          ██║██║   ██║██║     ██║       ╚████╔╝    ██████╔╝" -ForegroundColor Red
+Write-Host "     ██   ██║██║   ██║██║     ██║        ╚██╔╝     ██╔══██╗" -ForegroundColor Red
+Write-Host "     ╚█████╔╝╚██████╔╝███████╗███████╗     ██║      ██║  ██║" -ForegroundColor Red
+Write-Host "      ╚════╝  ╚═════╝ ╚══════╝╚══════╝     ╚═╝      ╚═╝  ╚═╝" -ForegroundColor Red
+Write-Host ""
+Write-Host "               WinSxS Manifest Checker" -ForegroundColor Cyan
+Write-Host "        Windows Server 2022 Component Store Validator" -ForegroundColor Yellow
+Write-Host "              Jolly Roger Troubleshooting Toolkit" -ForegroundColor Green
+Write-Host "             Christian Marrero Bonilla" -ForegroundColor DarkCyan
+Write-Host ""
+Write-Host "══════════════════════════════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
 <#
 .SYNOPSIS
     GUI-based file archival utility.
