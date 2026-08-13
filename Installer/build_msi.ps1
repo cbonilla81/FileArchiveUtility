@@ -14,14 +14,28 @@ Write-Host "Publishing project to $publishDir..."
 dotnet publish $proj -c $Configuration -r $Runtime --self-contained false -o $publishDir --no-restore
 if ($LASTEXITCODE -ne 0) { Write-Error "dotnet publish failed"; exit $LASTEXITCODE }
 
-# Ensure WiX tools are available
-$heat = "heat.exe"
-$candle = "candle.exe"
-$light = "light.exe"
+# Ensure WiX tools are available from either PATH or common install locations.
+$wixBinCandidates = @(
+    "$env:ProgramFiles(x86)\WiX Toolset v3.14\bin",
+    "$env:ProgramFiles(x86)\WiX Toolset v3.11\bin",
+    "$env:ProgramFiles\WiX Toolset v3.14\bin",
+    "$env:ProgramFiles\WiX Toolset v3.11\bin",
+    "$env:ChocolateyInstall\bin"
+)
 
-if (-not (Get-Command $heat -ErrorAction SilentlyContinue)) { Write-Error "heat.exe not found in PATH. Install WiX Toolset (https://wixtoolset.org/) or run this script in CI after installing WiX."; exit 1 }
-if (-not (Get-Command $candle -ErrorAction SilentlyContinue)) { Write-Error "candle.exe not found in PATH."; exit 1 }
-if (-not (Get-Command $light -ErrorAction SilentlyContinue)) { Write-Error "light.exe not found in PATH."; exit 1 }
+foreach ($candidate in $wixBinCandidates) {
+    if (Test-Path $candidate) {
+        $env:Path = "$candidate;$env:Path"
+    }
+}
+
+$heat = Get-Command heat.exe -ErrorAction SilentlyContinue
+$candle = Get-Command candle.exe -ErrorAction SilentlyContinue
+$light = Get-Command light.exe -ErrorAction SilentlyContinue
+
+if (-not $heat) { Write-Error "heat.exe not found in PATH or in common WiX install folders. Install WiX Toolset (https://wixtoolset.org/) or run this script in CI after installing WiX."; exit 1 }
+if (-not $candle) { Write-Error "candle.exe not found in PATH or in common WiX install folders."; exit 1 }
+if (-not $light) { Write-Error "light.exe not found in PATH or in common WiX install folders."; exit 1 }
 
 # Prepare intermediate output
 $harvestWxs = Join-Path $scriptRoot "AppFiles.wxs"

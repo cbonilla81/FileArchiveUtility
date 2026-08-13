@@ -12,16 +12,16 @@ namespace FolderArchiveTool
 {
     public class MainForm : Form
     {
-        TextBox txtSource, txtDestination;
-        Button btnBrowseSource, btnBrowseDest, btnScan, btnExecute;
-        TreeView treeCandidates;
-        TextBox txtPreview, txtLog;
-        ProgressBar progressBar;
-        CheckBox chkDryRun, chkRemoveEmpty, chkApplyChoiceToAll;
+        TextBox txtSource = null!, txtDestination = null!;
+        Button btnBrowseSource = null!, btnBrowseDest = null!, btnScan = null!, btnExecute = null!;
+        TreeView treeCandidates = null!;
+        TextBox txtPreview = null!, txtLog = null!;
+        ProgressBar progressBar = null!;
+        CheckBox chkDryRun = null!, chkRemoveEmpty = null!, chkApplyChoiceToAll = null!;
 
         // New UI for compression and filters
-        CheckBox chkCompressFolders;
-        TextBox txtIncludeExt, txtExcludeExt, txtMinSizeMb, txtMaxSizeMb, txtExcludePaths;
+        CheckBox chkCompressFolders = null!;
+        TextBox txtIncludeExt = null!, txtExcludeExt = null!, txtMinSizeMb = null!, txtMaxSizeMb = null!, txtExcludePaths = null!;
 
         DateTime thresholdDateUtc;
         string sourceRoot = string.Empty;
