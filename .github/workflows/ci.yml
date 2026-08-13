@@ -16,7 +16,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore
-        run: dotnet restore FolderArchiveTool.sln || true
+        run: dotnet restore FolderArchiveTool/FolderArchiveTool.csproj || true
       - name: Build
         run: |
           dotnet build FolderArchiveTool/FolderArchiveTool.csproj -c Release --no-restore
