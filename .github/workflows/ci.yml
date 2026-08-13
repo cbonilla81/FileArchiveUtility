@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore FolderArchiveTool/FolderArchiveTool.csproj || true
+      - name: Build
+        run: |
+          dotnet build FolderArchiveTool/FolderArchiveTool.csproj -c Release --no-restore
+      - name: Test
+        run: |
+          dotnet test FolderArchiveTool.Tests/FolderArchiveTool.Tests.csproj -c Release --no-build --verbosity normal
+
+      - name: Install WiX Toolset (for MSI build)
+        run: choco install wixtoolset -y
+
+      - name: Build MSI
+        shell: pwsh
+        run: |
+          Set-Location ${{ github.workspace }}
+          .\Installer\build_msi.ps1 -OutputMsi "FolderArchiveTool.msi" -Configuration Release -Runtime win-x64
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: FolderArchiveTool-msi
+          path: FolderArchiveTool.msi
