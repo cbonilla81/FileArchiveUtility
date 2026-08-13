@@ -8,4 +8,9 @@
     <!-- Ensure platform-specific build for WinForms/WPF -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="Assets\RS&H_Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

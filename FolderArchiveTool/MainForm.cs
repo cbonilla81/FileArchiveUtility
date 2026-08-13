@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -46,54 +47,100 @@ namespace FolderArchiveTool
 
         void InitializeComponents()
         {
-            Label lblSource = new Label() { Text = "Source:", Left = 10, Top = 15, Width = 50 };
-            txtSource = new TextBox() { Left = 70, Top = 10, Width = 720 };
-            btnBrowseSource = new Button() { Text = "Browse...", Left = 800, Top = 8, Width = 80 };
+            var topBar = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 52,
+                BackColor = Color.FromArgb(17, 36, 64)
+            };
+            var logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "RS&H_Logo.png");
+            var logoPicture = new PictureBox
+            {
+                Width = 120,
+                Height = 34,
+                Left = 12,
+                Top = 9,
+                SizeMode = PictureBoxSizeMode.StretchImage,
+                BorderStyle = BorderStyle.None
+            };
+            try
+            {
+                if (File.Exists(logoPath))
+                {
+                    logoPicture.Image = Image.FromFile(logoPath);
+                }
+                else
+                {
+                    logoPicture.Image = CreateLogoImage(120, 34);
+                }
+            }
+            catch
+            {
+                logoPicture.Image = CreateLogoImage(120, 34);
+            }
+            var appTitle = new Label
+            {
+                Text = "Folder Archive Tool",
+                ForeColor = Color.White,
+                Font = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Bold),
+                Left = 150,
+                Top = 14,
+                AutoSize = true
+            };
+            topBar.Controls.Add(logoPicture);
+            topBar.Controls.Add(appTitle);
+
+            int topOffset = 60;
+
+            Label lblSource = new Label() { Text = "Source:", Left = 10, Top = 15 + topOffset, Width = 50 };
+            txtSource = new TextBox() { Left = 70, Top = 10 + topOffset, Width = 720 };
+            btnBrowseSource = new Button() { Text = "Browse...", Left = 800, Top = 8 + topOffset, Width = 80 };
             btnBrowseSource.Click += (s, e) => { using var dlg = new FolderBrowserDialog(); if (dlg.ShowDialog() == DialogResult.OK) txtSource.Text = dlg.SelectedPath; };
 
-            Label lblDest = new Label() { Text = "Destination:", Left = 10, Top = 50, Width = 70 };
-            txtDestination = new TextBox() { Left = 90, Top = 45, Width = 700 };
-            btnBrowseDest = new Button() { Text = "Browse...", Left = 800, Top = 43, Width = 80 };
+            Label lblDest = new Label() { Text = "Destination:", Left = 10, Top = 50 + topOffset, Width = 70 };
+            txtDestination = new TextBox() { Left = 90, Top = 45 + topOffset, Width = 700 };
+            btnBrowseDest = new Button() { Text = "Browse...", Left = 800, Top = 43 + topOffset, Width = 80 };
             btnBrowseDest.Click += (s, e) => { using var dlg = new FolderBrowserDialog(); if (dlg.ShowDialog() == DialogResult.OK) txtDestination.Text = dlg.SelectedPath; };
 
-            btnScan = new Button() { Text = "Scan for candidates", Left = 10, Top = 85, Width = 160 };
+            btnScan = new Button() { Text = "Scan for candidates", Left = 10, Top = 85 + topOffset, Width = 160 };
             btnScan.Click += async (s, e) => await ScanAsync();
-            chkDryRun = new CheckBox() { Text = "Dry run (don't move files)", Left = 190, Top = 90, Width = 200, Checked = true };
-            chkRemoveEmpty = new CheckBox() { Text = "Remove empty source folders after move", Left = 400, Top = 90, Width = 260, Checked = true };
+            chkDryRun = new CheckBox() { Text = "Dry run (don't move files)", Left = 190, Top = 90 + topOffset, Width = 200, Checked = true };
+            chkRemoveEmpty = new CheckBox() { Text = "Remove empty source folders after move", Left = 400, Top = 90 + topOffset, Width = 260, Checked = true };
 
             // Compression option
-            chkCompressFolders = new CheckBox() { Text = "Compress folder candidates to .zip", Left = 690, Top = 90, Width = 250, Checked = false };
+            chkCompressFolders = new CheckBox() { Text = "Compress folder candidates to .zip", Left = 690, Top = 90 + topOffset, Width = 250, Checked = false };
 
             // Filter inputs
-            var lblInclude = new Label() { Text = "Include extensions (comma):", Left = 10, Top = 115, Width = 180 };
-            txtIncludeExt = new TextBox() { Left = 200, Top = 112, Width = 260, Text = "" };
+            var lblInclude = new Label() { Text = "Include extensions (comma):", Left = 10, Top = 115 + topOffset, Width = 180 };
+            txtIncludeExt = new TextBox() { Left = 200, Top = 112 + topOffset, Width = 260, Text = "" };
 
-            var lblExclude = new Label() { Text = "Exclude extensions (comma):", Left = 470, Top = 115, Width = 180 };
-            txtExcludeExt = new TextBox() { Left = 650, Top = 112, Width = 220, Text = "" };
+            var lblExclude = new Label() { Text = "Exclude extensions (comma):", Left = 470, Top = 115 + topOffset, Width = 180 };
+            txtExcludeExt = new TextBox() { Left = 650, Top = 112 + topOffset, Width = 220, Text = "" };
 
-            var lblMinSize = new Label() { Text = "Min size (MB, optional):", Left = 10, Top = 145, Width = 180 };
-            txtMinSizeMb = new TextBox() { Left = 200, Top = 142, Width = 100, Text = "" };
+            var lblMinSize = new Label() { Text = "Min size (MB, optional):", Left = 10, Top = 145 + topOffset, Width = 180 };
+            txtMinSizeMb = new TextBox() { Left = 200, Top = 142 + topOffset, Width = 100, Text = "" };
 
-            var lblMaxSize = new Label() { Text = "Max size (MB, optional):", Left = 320, Top = 145, Width = 180 };
-            txtMaxSizeMb = new TextBox() { Left = 500, Top = 142, Width = 100, Text = "" };
+            var lblMaxSize = new Label() { Text = "Max size (MB, optional):", Left = 320, Top = 145 + topOffset, Width = 180 };
+            txtMaxSizeMb = new TextBox() { Left = 500, Top = 142 + topOffset, Width = 100, Text = "" };
 
-            var lblExcludePaths = new Label() { Text = "Exclude paths (newline or comma separated):", Left = 620, Top = 145, Width = 300 };
-            txtExcludePaths = new TextBox() { Left = 620, Top = 165, Width = 340, Height = 40, Multiline = true, ScrollBars = ScrollBars.Vertical };
+            var lblExcludePaths = new Label() { Text = "Exclude paths (newline or comma separated):", Left = 620, Top = 145 + topOffset, Width = 300 };
+            txtExcludePaths = new TextBox() { Left = 620, Top = 165 + topOffset, Width = 340, Height = 40, Multiline = true, ScrollBars = ScrollBars.Vertical };
 
-            treeCandidates = new TreeView() { Left = 10, Top = 220, Width = 450, Height = 350, CheckBoxes = true };
+            treeCandidates = new TreeView() { Left = 10, Top = 220 + topOffset, Width = 450, Height = 350, CheckBoxes = true };
             treeCandidates.AfterSelect += (s, e) => UpdatePreviewForSelectedNode();
 
-            txtPreview = new TextBox() { Left = 470, Top = 220, Width = 490, Height = 250, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
+            txtPreview = new TextBox() { Left = 470, Top = 220 + topOffset, Width = 490, Height = 250, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
 
-            progressBar = new ProgressBar() { Left = 470, Top = 480, Width = 490, Height = 20 };
+            progressBar = new ProgressBar() { Left = 470, Top = 480 + topOffset, Width = 490, Height = 20 };
 
-            btnExecute = new Button() { Text = "Execute Move/Archive", Left = 470, Top = 510, Width = 160 };
+            btnExecute = new Button() { Text = "Execute Move/Archive", Left = 470, Top = 510 + topOffset, Width = 160 };
             btnExecute.Click += async (s, e) => await ExecuteMoveAsync();
 
-            chkApplyChoiceToAll = new CheckBox() { Text = "Apply my move choice to all remaining prompts", Left = 650, Top = 514, Width = 320 };
+            chkApplyChoiceToAll = new CheckBox() { Text = "Apply my move choice to all remaining prompts", Left = 650, Top = 514 + topOffset, Width = 320 };
 
-            txtLog = new TextBox() { Left = 10, Top = 580, Width = 950, Height = 70, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
+            txtLog = new TextBox() { Left = 10, Top = 580 + topOffset, Width = 950, Height = 70, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
 
+            Controls.Add(topBar);
             Controls.AddRange(new Control[] { lblSource, txtSource, btnBrowseSource, lblDest, txtDestination, btnBrowseDest, btnScan, chkDryRun, chkRemoveEmpty, chkCompressFolders, lblInclude, txtIncludeExt, lblExclude, txtExcludeExt, lblMinSize, txtMinSizeMb, lblMaxSize, txtMaxSizeMb, lblExcludePaths, txtExcludePaths, treeCandidates, txtPreview, progressBar, btnExecute, chkApplyChoiceToAll, txtLog });
         }
 
@@ -437,6 +484,33 @@ namespace FolderArchiveTool
             {
                 AppendLog($"Error removing empty folders: {ex.Message}");
             }
+        }
+
+        static Image CreateLogoImage(int width, int height)
+        {
+            var bmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.FromArgb(17, 36, 64));
+
+                var accentBrush = new SolidBrush(Color.FromArgb(255, 92, 143, 168));
+                var whiteBrush = new SolidBrush(Color.White);
+                var darkBrush = new SolidBrush(Color.FromArgb(12, 22, 40));
+
+                g.FillRectangle(darkBrush, 0, 0, width, height);
+                g.FillRectangle(accentBrush, 0, 0, 12, height);
+
+                using (var font = new Font(FontFamily.GenericSansSerif, 12f, FontStyle.Bold))
+                {
+                    g.DrawString("RS&H", font, whiteBrush, 18, 7);
+                }
+
+                g.FillEllipse(whiteBrush, 96, 6, 14, 14);
+                g.FillEllipse(accentBrush, 100, 9, 6, 6);
+            }
+
+            return bmp;
         }
 
         void AppendLog(string message)
