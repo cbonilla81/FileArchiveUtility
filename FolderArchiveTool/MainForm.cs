@@ -12,12 +12,17 @@ namespace FolderArchiveTool
 {
     public class MainForm : Form
     {
+        Panel headerPanel = null!;
+        Label titleLabel = null!;
+        Label subtitleLabel = null!;
+        Button btnThemeToggle = null!;
         TextBox txtSource = null!, txtDestination = null!;
         Button btnBrowseSource = null!, btnBrowseDest = null!, btnScan = null!, btnExecute = null!;
         TreeView treeCandidates = null!;
         TextBox txtPreview = null!, txtLog = null!;
         ProgressBar progressBar = null!;
         CheckBox chkDryRun = null!, chkRemoveEmpty = null!, chkApplyChoiceToAll = null!;
+        bool darkMode = false;
 
         // New UI for compression and filters
         CheckBox chkCompressFolders = null!;
@@ -41,60 +46,229 @@ namespace FolderArchiveTool
             Text = "Folder Archive Tool";
             Width = 1000;
             Height = 700;
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            BackColor = Color.FromArgb(241, 245, 249);
             InitializeComponents();
+            ApplyTheme(darkMode);
         }
 
         void InitializeComponents()
         {
-            Label lblSource = new Label() { Text = "Source:", Left = 10, Top = 15, Width = 50 };
-            txtSource = new TextBox() { Left = 70, Top = 10, Width = 720 };
-            btnBrowseSource = new Button() { Text = "Browse...", Left = 800, Top = 8, Width = 80 };
+            headerPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 82,
+                BackColor = Color.FromArgb(15, 118, 110),
+                Padding = new Padding(18, 0, 0, 0)
+            };
+
+            titleLabel = new Label
+            {
+                Text = "Folder Archive Tool",
+                AutoSize = true,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point),
+                Location = new Point(22, 18)
+            };
+
+            subtitleLabel = new Label
+            {
+                Text = "Archive stale files and folders with smarter filters",
+                AutoSize = true,
+                ForeColor = Color.FromArgb(148, 163, 184),
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point),
+                Location = new Point(24, 48)
+            };
+
+            btnThemeToggle = new Button
+            {
+                Text = "🌙 Dark",
+                FlatStyle = FlatStyle.Flat,
+                Width = 100,
+                Height = 32,
+                Location = new Point(850, 24),
+                BackColor = Color.FromArgb(30, 41, 59),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point),
+                FlatAppearance = { BorderSize = 0 }
+            };
+            btnThemeToggle.Click += (s, e) =>
+            {
+                darkMode = !darkMode;
+                ApplyTheme(darkMode);
+            };
+
+            headerPanel.Controls.Add(titleLabel);
+            headerPanel.Controls.Add(subtitleLabel);
+            headerPanel.Controls.Add(btnThemeToggle);
+            Controls.Add(headerPanel);
+
+            Label lblSource = new Label() { Text = "Source:", Left = 14, Top = 100, Width = 58, Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtSource = new TextBox() { Left = 78, Top = 96, Width = 710, Height = 30, BorderStyle = BorderStyle.FixedSingle };
+            btnBrowseSource = new Button() { Text = "Browse...", Left = 804, Top = 94, Width = 82, Height = 32, FlatStyle = FlatStyle.Flat, FlatAppearance = { BorderSize = 0 } };
             btnBrowseSource.Click += (s, e) => { using var dlg = new FolderBrowserDialog(); if (dlg.ShowDialog() == DialogResult.OK) txtSource.Text = dlg.SelectedPath; };
 
-            Label lblDest = new Label() { Text = "Destination:", Left = 10, Top = 50, Width = 70 };
-            txtDestination = new TextBox() { Left = 90, Top = 45, Width = 700 };
-            btnBrowseDest = new Button() { Text = "Browse...", Left = 800, Top = 43, Width = 80 };
+            Label lblDest = new Label() { Text = "Destination:", Left = 14, Top = 138, Width = 76, Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtDestination = new TextBox() { Left = 98, Top = 134, Width = 690, Height = 30, BorderStyle = BorderStyle.FixedSingle };
+            btnBrowseDest = new Button() { Text = "Browse...", Left = 804, Top = 132, Width = 82, Height = 32, FlatStyle = FlatStyle.Flat, FlatAppearance = { BorderSize = 0 } };
             btnBrowseDest.Click += (s, e) => { using var dlg = new FolderBrowserDialog(); if (dlg.ShowDialog() == DialogResult.OK) txtDestination.Text = dlg.SelectedPath; };
 
-            btnScan = new Button() { Text = "Scan for candidates", Left = 10, Top = 85, Width = 160 };
+            btnScan = new Button() { Text = "Scan for candidates", Left = 14, Top = 176, Width = 170, Height = 36, FlatStyle = FlatStyle.Flat, FlatAppearance = { BorderSize = 0 } };
             btnScan.Click += async (s, e) => await ScanAsync();
-            chkDryRun = new CheckBox() { Text = "Dry run (don't move files)", Left = 190, Top = 90, Width = 200, Checked = true };
-            chkRemoveEmpty = new CheckBox() { Text = "Remove empty source folders after move", Left = 400, Top = 90, Width = 260, Checked = true };
+            chkDryRun = new CheckBox() { Text = "Dry run", Left = 198, Top = 182, Width = 110, Checked = true, Font = new Font("Segoe UI", 10F, GraphicsUnit.Point) };
+            chkRemoveEmpty = new CheckBox() { Text = "Remove empty folders", Left = 320, Top = 182, Width = 180, Checked = true, Font = new Font("Segoe UI", 10F, GraphicsUnit.Point) };
 
-            // Compression option
-            chkCompressFolders = new CheckBox() { Text = "Compress folder candidates to .zip", Left = 690, Top = 90, Width = 250, Checked = false };
+            chkCompressFolders = new CheckBox() { Text = "Compress .zip", Left = 520, Top = 182, Width = 150, Checked = false, Font = new Font("Segoe UI", 10F, GraphicsUnit.Point) };
 
-            // Filter inputs
-            var lblInclude = new Label() { Text = "Include extensions (comma):", Left = 10, Top = 115, Width = 180 };
-            txtIncludeExt = new TextBox() { Left = 200, Top = 112, Width = 260, Text = "" };
+            var lblInclude = new Label() { Text = "Include extensions:", Left = 12, Top = 220, Width = 150, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtIncludeExt = new TextBox() { Left = 170, Top = 216, Width = 270, Height = 30, BorderStyle = BorderStyle.FixedSingle };
 
-            var lblExclude = new Label() { Text = "Exclude extensions (comma):", Left = 470, Top = 115, Width = 180 };
-            txtExcludeExt = new TextBox() { Left = 650, Top = 112, Width = 220, Text = "" };
+            var lblExclude = new Label() { Text = "Exclude extensions:", Left = 456, Top = 220, Width = 150, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtExcludeExt = new TextBox() { Left = 610, Top = 216, Width = 270, Height = 30, BorderStyle = BorderStyle.FixedSingle };
 
-            var lblMinSize = new Label() { Text = "Min size (MB, optional):", Left = 10, Top = 145, Width = 180 };
-            txtMinSizeMb = new TextBox() { Left = 200, Top = 142, Width = 100, Text = "" };
+            var lblMinSize = new Label() { Text = "Min size (MB):", Left = 12, Top = 258, Width = 120, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtMinSizeMb = new TextBox() { Left = 140, Top = 254, Width = 110, Height = 30, BorderStyle = BorderStyle.FixedSingle };
 
-            var lblMaxSize = new Label() { Text = "Max size (MB, optional):", Left = 320, Top = 145, Width = 180 };
-            txtMaxSizeMb = new TextBox() { Left = 500, Top = 142, Width = 100, Text = "" };
+            var lblMaxSize = new Label() { Text = "Max size (MB):", Left = 270, Top = 258, Width = 120, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtMaxSizeMb = new TextBox() { Left = 396, Top = 254, Width = 110, Height = 30, BorderStyle = BorderStyle.FixedSingle };
 
-            var lblExcludePaths = new Label() { Text = "Exclude paths (newline or comma separated):", Left = 620, Top = 145, Width = 300 };
-            txtExcludePaths = new TextBox() { Left = 620, Top = 165, Width = 340, Height = 40, Multiline = true, ScrollBars = ScrollBars.Vertical };
+            var lblExcludePaths = new Label() { Text = "Exclude paths:", Left = 530, Top = 258, Width = 120, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point) };
+            txtExcludePaths = new TextBox() { Left = 650, Top = 254, Width = 230, Height = 60, Multiline = true, ScrollBars = ScrollBars.Vertical, BorderStyle = BorderStyle.FixedSingle };
 
-            treeCandidates = new TreeView() { Left = 10, Top = 220, Width = 450, Height = 350, CheckBoxes = true };
+            treeCandidates = new TreeView() { Left = 12, Top = 340, Width = 450, Height = 230, CheckBoxes = true, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Segoe UI", 9.5F, GraphicsUnit.Point) };
             treeCandidates.AfterSelect += (s, e) => UpdatePreviewForSelectedNode();
 
-            txtPreview = new TextBox() { Left = 470, Top = 220, Width = 490, Height = 250, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
+            txtPreview = new TextBox() { Left = 472, Top = 340, Width = 490, Height = 180, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Segoe UI", 9.5F, GraphicsUnit.Point) };
 
-            progressBar = new ProgressBar() { Left = 470, Top = 480, Width = 490, Height = 20 };
+            progressBar = new ProgressBar() { Left = 472, Top = 530, Width = 490, Height = 20, Style = ProgressBarStyle.Blocks };
 
-            btnExecute = new Button() { Text = "Execute Move/Archive", Left = 470, Top = 510, Width = 160 };
+            btnExecute = new Button() { Text = "Execute Move/Archive", Left = 472, Top = 560, Width = 180, Height = 34, FlatStyle = FlatStyle.Flat, FlatAppearance = { BorderSize = 0 } };
             btnExecute.Click += async (s, e) => await ExecuteMoveAsync();
 
-            chkApplyChoiceToAll = new CheckBox() { Text = "Apply my move choice to all remaining prompts", Left = 650, Top = 514, Width = 320 };
+            chkApplyChoiceToAll = new CheckBox() { Text = "Apply choice to all prompts", Left = 670, Top = 566, Width = 260, Font = new Font("Segoe UI", 9.5F, GraphicsUnit.Point) };
 
-            txtLog = new TextBox() { Left = 10, Top = 580, Width = 950, Height = 70, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
+            txtLog = new TextBox() { Left = 12, Top = 596, Width = 950, Height = 64, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 9F, GraphicsUnit.Point) };
 
             Controls.AddRange(new Control[] { lblSource, txtSource, btnBrowseSource, lblDest, txtDestination, btnBrowseDest, btnScan, chkDryRun, chkRemoveEmpty, chkCompressFolders, lblInclude, txtIncludeExt, lblExclude, txtExcludeExt, lblMinSize, txtMinSizeMb, lblMaxSize, txtMaxSizeMb, lblExcludePaths, txtExcludePaths, treeCandidates, txtPreview, progressBar, btnExecute, chkApplyChoiceToAll, txtLog });
+        }
+
+        void ApplyTheme(bool useDarkMode)
+        {
+            Color bg = useDarkMode ? Color.FromArgb(15, 23, 42) : Color.FromArgb(245, 247, 250);
+            Color panel = useDarkMode ? Color.FromArgb(30, 41, 59) : Color.FromArgb(255, 255, 255);
+            Color field = useDarkMode ? Color.FromArgb(15, 23, 42) : Color.FromArgb(255, 255, 255);
+            Color text = useDarkMode ? Color.FromArgb(226, 232, 240) : Color.FromArgb(15, 23, 42);
+            Color muted = useDarkMode ? Color.FromArgb(148, 163, 184) : Color.FromArgb(71, 85, 105);
+            Color border = useDarkMode ? Color.FromArgb(71, 85, 105) : Color.FromArgb(209, 219, 230);
+            Color accent = useDarkMode ? Color.FromArgb(96, 165, 250) : Color.FromArgb(14, 116, 144);
+            Color secondaryAccent = useDarkMode ? Color.FromArgb(59, 130, 246) : Color.FromArgb(8, 145, 178);
+            Color success = useDarkMode ? Color.FromArgb(16, 185, 129) : Color.FromArgb(16, 185, 129);
+            Color softPanel = useDarkMode ? Color.FromArgb(20, 31, 49) : Color.FromArgb(241, 245, 249);
+
+            BackColor = bg;
+            headerPanel.BackColor = useDarkMode ? Color.FromArgb(15, 23, 42) : Color.FromArgb(15, 118, 110);
+            titleLabel.ForeColor = Color.White;
+            subtitleLabel.ForeColor = useDarkMode ? muted : Color.FromArgb(220, 252, 231);
+            btnThemeToggle.Text = useDarkMode ? "☀️ Light" : "🌙 Dark";
+            btnThemeToggle.BackColor = useDarkMode ? panel : Color.FromArgb(13, 148, 136);
+            btnThemeToggle.ForeColor = Color.White;
+            btnThemeToggle.FlatAppearance.BorderColor = border;
+
+            foreach (Control control in Controls)
+            {
+                if (control is TextBox txt)
+                {
+                    txt.BackColor = field;
+                    txt.ForeColor = text;
+                    txt.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else if (control is Label label)
+                {
+                    label.ForeColor = text;
+                }
+                else if (control is CheckBox check)
+                {
+                    check.ForeColor = text;
+                    check.BackColor = bg;
+                }
+                else if (control is TreeView tree)
+                {
+                    tree.BackColor = softPanel;
+                    tree.ForeColor = text;
+                    tree.LineColor = border;
+                }
+                else if (control is Button button)
+                {
+                    if (button == btnScan || button == btnBrowseSource)
+                    {
+                        button.BackColor = accent;
+                        button.ForeColor = Color.White;
+                    }
+                    else if (button == btnBrowseDest)
+                    {
+                        button.BackColor = secondaryAccent;
+                        button.ForeColor = Color.White;
+                    }
+                    else if (button == btnExecute)
+                    {
+                        button.BackColor = success;
+                        button.ForeColor = Color.White;
+                    }
+                    else if (button != btnThemeToggle)
+                    {
+                        button.BackColor = useDarkMode ? panel : Color.FromArgb(237, 242, 247);
+                        button.ForeColor = text;
+                    }
+
+                    button.FlatAppearance.BorderColor = border;
+                    button.FlatAppearance.MouseOverBackColor = useDarkMode ? Color.FromArgb(51, 65, 85) : Color.FromArgb(224, 233, 244);
+                    button.FlatAppearance.BorderSize = 0;
+                }
+                else if (control is ProgressBar pb)
+                {
+                    pb.BackColor = softPanel;
+                    pb.ForeColor = accent;
+                }
+            }
+
+            txtSource.BackColor = field;
+            txtDestination.BackColor = field;
+            txtIncludeExt.BackColor = field;
+            txtExcludeExt.BackColor = field;
+            txtMinSizeMb.BackColor = field;
+            txtMaxSizeMb.BackColor = field;
+            txtExcludePaths.BackColor = field;
+            txtPreview.BackColor = panel;
+            txtLog.BackColor = panel;
+
+            txtSource.ForeColor = text;
+            txtDestination.ForeColor = text;
+            txtIncludeExt.ForeColor = text;
+            txtExcludeExt.ForeColor = text;
+            txtMinSizeMb.ForeColor = text;
+            txtMaxSizeMb.ForeColor = text;
+            txtExcludePaths.ForeColor = text;
+            txtPreview.ForeColor = text;
+            txtLog.ForeColor = text;
+
+            treeCandidates.BackColor = softPanel;
+            treeCandidates.ForeColor = text;
+            treeCandidates.LineColor = border;
+
+            btnBrowseSource.BackColor = accent;
+            btnBrowseDest.BackColor = secondaryAccent;
+            btnScan.BackColor = accent;
+            btnExecute.BackColor = success;
+            btnBrowseSource.ForeColor = Color.White;
+            btnBrowseDest.ForeColor = Color.White;
+            btnScan.ForeColor = Color.White;
+            btnExecute.ForeColor = Color.White;
+
+            chkDryRun.ForeColor = text;
+            chkRemoveEmpty.ForeColor = text;
+            chkCompressFolders.ForeColor = text;
+            chkApplyChoiceToAll.ForeColor = text;
         }
 
         async Task ScanAsync()

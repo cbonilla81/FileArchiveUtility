@@ -1,0 +1,15 @@
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\bin\Debug\net8.0-windows\win-x64\FolderArchiveTool.exe
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\bin\Debug\net8.0-windows\win-x64\FolderArchiveTool.deps.json
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\bin\Debug\net8.0-windows\win-x64\FolderArchiveTool.runtimeconfig.json
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\bin\Debug\net8.0-windows\win-x64\FolderArchiveTool.dll
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\bin\Debug\net8.0-windows\win-x64\FolderArchiveTool.pdb
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.AssemblyInfoInputs.cache
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.AssemblyInfo.cs
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.csproj.CoreCompileInputs.cache
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.sourcelink.json
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.dll
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\refint\FolderArchiveTool.dll
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.pdb
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\FolderArchiveTool.genruntimeconfig.cache
+C:\Users\Bonillac\OneDrive - RSandH\Documents\GitHub\FileArchiveUtility\FolderArchiveTool\obj\Debug\net8.0-windows\win-x64\ref\FolderArchiveTool.dll
