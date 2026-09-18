@@ -1,263 +1,131 @@
 # File Archive Utility
 
-A Windows PowerShell GUI utility that identifies files older than a specified number of days and moves them to an archive location while preserving the original folder structure.
+A Windows desktop utility for scanning stale files and folders, reviewing candidates in a tree view, and moving or archiving them to a target destination with filtering and safety checks.
 
-## Included Files
+## Project status
 
-- `Archive-OldFiles-GUI.ps1` — Main PowerShell GUI application.
-- `README.md` — Installation, usage, configuration, and safety instructions.
+This project is now implemented as a .NET 8 WinForms desktop application under the FolderArchiveTool project. The app includes a modern dashboard-style interface, candidate review, destination prompts, overwrite handling, and live scan results.
 
-## Features
+## Included project files
 
-- Select the source folder using a browse button or enter a UNC path.
-- Select the archive destination using a browse button or enter a UNC path.
-- Choose the age threshold in days. The default is 365 days.
-- Dry Run mode is enabled by default.
-- Preserve the original directory structure at the archive destination.
-- Optionally remove empty source folders after archival.
-- Optionally overwrite destination files when the archived copy is older.
-- Display live status information and progress.
-- Create detailed text and CSV logs.
-- Prevent use of the same source and destination path.
-- Prevent placing the archive destination inside the source folder.
+- `FolderArchiveTool/` — WinForms application code.
+- `FolderArchiveTool.Tests/` — automated tests for the archive scanner and filtering logic.
+- `Installer/` — MSI packaging assets.
+- `Archive-OldFiles-GUI.ps1` — legacy PowerShell script retained for reference.
+- `README.md` — project overview, setup, and usage instructions.
+
+## Core features
+
+- Browse a source folder and destination folder.
+- Scan stale files and folders using a UTC-based age threshold.
+- Review matched candidates in a checked tree view.
+- Filter results by:
+  - include extensions
+  - exclude extensions
+  - minimum and maximum file size
+  - excluded path names
+- Preview selected file or folder details before execution.
+- Run in dry-run mode for safe testing.
+- Optionally remove empty folders after processing.
+- Compress folder candidates into ZIP archives instead of moving them.
+- Support overwrite decisions for conflicting destination files or folders.
+- Optionally apply a move choice to remaining prompts.
+- Keep a live log of actions and errors.
 
 ## Requirements
 
-- Windows 10, Windows 11, Windows Server 2016, 2019, 2022, or newer.
-- Windows PowerShell 5.1 is recommended.
-- PowerShell 7 can also work on Windows when Windows Forms is available.
-- The account running the script must have appropriate file permissions.
+- Windows 10 or Windows 11
+- .NET 8 SDK
+- Access permissions to the source and destination folders
 
-### Required Permissions
+## Build and run
 
-The account running the program should have:
-
-- Read, list, write, and delete permissions on the source location.
-- Read, write, and create-folder permissions on the archive destination.
-- Access to both servers when UNC paths are used.
-
-Example UNC paths:
-
-```text
-\\FileServer01\Data
-\\ArchiveServer01\Archive\Data
-```
-
-## Extracting the Package
-
-1. Right-click the ZIP file.
-2. Select **Extract All**.
-3. Extract the files to a local directory, such as:
-
-```text
-C:\Scripts\FileArchiveUtility
-```
-
-Avoid running the script directly from inside the ZIP file.
-
-## Running the Utility
-
-### Method 1: Run from PowerShell
-
-Open Windows PowerShell and run:
+From the project root, run:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "C:\Scripts\FileArchiveUtility\Archive-OldFiles-GUI.ps1"
+dotnet restore
 ```
 
-### Method 2: Right-click the Script
-
-You can right-click `Archive-OldFiles-GUI.ps1` and select **Run with PowerShell**.
-
-If the GUI does not appear, use Method 1 to ensure STA mode is enabled.
-
-### Method 3: Create a Desktop Shortcut
-
-Create a desktop shortcut using this target:
-
-```text
-powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "C:\Scripts\FileArchiveUtility\Archive-OldFiles-GUI.ps1"
-```
-
-Set **Start in** to:
-
-```text
-C:\Scripts\FileArchiveUtility
-```
-
-## Using the GUI
-
-### 1. Select the Source Path
-
-Choose the folder containing the files you want to evaluate.
-
-Example:
-
-```text
-\\FileServer01\DepartmentData
-```
-
-### 2. Select the Archive Path
-
-Choose the destination where old files should be archived.
-
-Example:
-
-```text
-\\ArchiveServer01\Archive\DepartmentData
-```
-
-The utility recreates the source folder structure under the archive destination.
-
-Example source file:
-
-```text
-\\FileServer01\DepartmentData\Finance\2023\Report.xlsx
-```
-
-Example archived file:
-
-```text
-\\ArchiveServer01\Archive\DepartmentData\Finance\2023\Report.xlsx
-```
-
-### 3. Set the File Age
-
-The default value is:
-
-```text
-365 days
-```
-
-The utility uses the file's `LastWriteTime` value. A file is eligible when its last modified date is older than the selected cutoff date.
-
-### 4. Use Dry Run Mode First
-
-Dry Run mode is enabled by default.
-
-When enabled, the utility:
-
-- Scans the source location.
-- Identifies eligible files.
-- Shows what would be moved.
-- Produces logs and a CSV report.
-- Does not move files.
-- Does not create archive folders.
-- Does not remove source folders.
-
-Always review the Dry Run output before running in Live mode.
-
-### 5. Live Mode
-
-To move files:
-
-1. Complete and review a Dry Run.
-2. Clear the **Dry Run mode** checkbox.
-3. Click **Run Archive**.
-4. Confirm the warning prompt.
-
-Live mode moves eligible files to the archive destination.
-
-## Remove Empty Source Folders
-
-When selected, the utility removes source folders only when:
-
-- The folder is older than the configured cutoff.
-- The folder is empty after files are moved.
-- The folder is not listed as an excluded folder.
-
-The utility does not move entire folders based only on the folder date. It evaluates individual files to avoid archiving newer files inside an older folder.
-
-## Overwrite Older Destination Files
-
-This option is disabled by default.
-
-When disabled:
-
-- A source file is skipped if a file already exists at the archive destination.
-
-When enabled:
-
-- The destination file can be replaced when the source file is newer.
-- The destination file is not replaced when it is the same age or newer.
-
-## Logs and Reports
-
-Logs are stored under:
-
-```text
-C:\ProgramData\FileArchiveUtility\Logs
-```
-
-The application creates two files for each execution:
-
-```text
-Archive_YYYYMMDD_HHMMSS.log
-Archive_YYYYMMDD_HHMMSS.csv
-```
-
-The CSV report includes:
-
-- Timestamp
-- Item type
-- Source path
-- Destination path
-- File size in bytes
-- File size in megabytes
-- Status
-- Details
-
-Possible status values include:
-
-- `Archived`
-- `WhatIf`
-- `Skipped`
-- `Failed`
-- `Removed`
-
-## Default Exclusions
-
-The script excludes these file extensions:
-
-```text
-.tmp
-.lock
-```
-
-The script excludes folders with these names:
-
-```text
-ActiveProjects
-LegalHold
-DoNotArchive
-```
-
-To change the exclusions, edit these sections near the top of the script:
+Then build:
 
 ```powershell
-$script:ExcludedExtensions = @(".tmp", ".lock")
-$script:ExcludedFolderNames = @("ActiveProjects", "LegalHold", "DoNotArchive")
+dotnet build "FolderArchiveTool/FolderArchiveTool.csproj"
 ```
 
-Example:
+To run the application:
 
 ```powershell
-$script:ExcludedExtensions = @(
-    ".tmp",
-    ".lock",
-    ".bak"
-)
-
-$script:ExcludedFolderNames = @(
-    "ActiveProjects",
-    "LegalHold",
-    "DoNotArchive",
-    "Executive",
-    "CurrentContracts"
-)
+dotnet run --project "FolderArchiveTool/FolderArchiveTool.csproj"
 ```
 
-## PowerShell Execution Policy
+> WinForms desktop apps require a Windows environment. This project targets Windows and is configured for Windows desktop execution.
+
+## How to use the GUI
+
+### 1. Choose the source folder
+
+Select the folder you want the tool to inspect.
+
+### 2. Choose the destination folder
+
+Select the archive target where files or folders should be moved or compressed.
+
+### 3. Scan for candidates
+
+Click the Scan for candidates button to evaluate the source tree against the current filters and age threshold.
+
+### 4. Review matches
+
+The tree view shows file and folder candidates. You can check or uncheck items before execution.
+
+### 5. Use filters
+
+The filter controls let you narrow the set of candidates:
+
+- Include extensions: only consider matching extensions
+- Exclude extensions: ignore files by extension
+- Min size and Max size: restrict by file size in MB
+- Exclude paths: skip folders or names that match a path fragment
+
+### 6. Preview item details
+
+Selecting a node in the tree shows information such as file size and timestamp details in the preview panel.
+
+### 7. Execute the operation
+
+Click Execute Move/Archive to perform the action for the selected candidates.
+
+If Dry run is enabled, the log will show what would happen without moving files.
+
+## Safety behavior
+
+The tool is designed to help prevent accidental data loss:
+
+- Move confirmations appear before each move action.
+- Overwrite conflicts can be resolved with per-item or all remaining choices.
+- Empty folders are only removed after the move step succeeds.
+- ZIP compression can be used instead of moving folder trees.
+
+## Log output
+
+The application writes operation updates to the log panel in the GUI. The tool also surfaces action messages and errors while scanning and moving files.
+
+## Notes
+
+- The project includes a legacy PowerShell script that may still be useful as a reference for older workflows.
+- The current primary implementation is the WinForms desktop project in `FolderArchiveTool`.
+- The scanner uses last write and last access timestamps older than the configured threshold, then applies the selected filters.
+
+## Build verification
+
+The project was successfully verified with:
+
+```powershell
+dotnet build "FolderArchiveTool/FolderArchiveTool.csproj"
+```
+
+The current build reported 0 errors and succeeded on .NET SDK 8.0.425.
+
 
 If Windows blocks the script, use:
 
